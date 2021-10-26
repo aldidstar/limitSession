@@ -5,7 +5,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var session = require("express-session");
 var flash = require("connect-flash");
-// var fileupload = require("express-fileupload");
 
 const developmentDB = {
   user: "postgres",
@@ -42,11 +41,11 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
     secret: "aldidstar",
+    // limit session
     cookie: { maxAge: 5000 },
   })
 );
 app.use(flash());
-// app.use(fileupload());
 
 app.use("/index", indexRouter);
 app.use("/users", usersRouter);

@@ -1,11 +1,12 @@
 var express = require("express");
 var router = express.Router();
-// var moment = require("moment");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const helpers = require("../helpers/util");
 
 module.exports = function (db) {
+  var count = -1;
+  count += 1;
   router.get("/", (req, res, next) => {
     res.render("index/login", { info: req.flash("info") });
   });
@@ -19,27 +20,42 @@ module.exports = function (db) {
           req.flash("info", "Salah nihh!");
           return res.redirect("/index");
         }
+
+        // jika salah email / password
         if (row.rows.length == 0) {
-          let tes1 = setInterval(function () {
-            // console.log("Hello");
-          }, 10000);
-          let tes = req.body.password;
-          let availableCars = [{ tes }, { tes }, { tes }, { tes }, , { tes1 }];
-          availableCars.push(req.body.password);
-          console.log(row.rows.length);
-          req.flash("info", "email / password salah!");
+          count += 1;
+
+          // jika mencoba login lebih dari 5 kali
+          if (count > 5) {
+            setTimeout(function () {
+              count = 0;
+            }, 30000);
+            req.flash("info", "tunggu 30 detik lalu refresh");
+          } else {
+            req.flash("info", `Gagal ${count} kali. email / password salah!`);
+          }
+
           return res.redirect("/index");
         }
+        // membcrypt password untuk mencocokkan sesuai atau tidak
         bcrypt.compare(
           req.body.password,
           row.rows[0].password,
           function (err, result) {
             if (result) {
-              req.session.user = row.rows[0];
-              res.redirect("/users");
+              if (count > 5) {
+                setTimeout(function () {
+                  count = 0;
+                  res.redirect("/users");
+                }, 30000);
+                req.flash("info", "tunggu 30 detik lalu refresh");
+              } else {
+                req.session.user = row.rows[0];
+
+                // masuk ke landing page
+                res.redirect("/users");
+              }
             } else {
-              // availableCars.push(req.body.password);
-              // console.log(availableCars);
               req.flash("info", "email / password salah!");
               res.redirect("/index");
             }

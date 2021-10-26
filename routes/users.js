@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 const path = require("path");
 const saltRounds = 10;
 const helpers = require("../helpers/util");
-// var moment = require("moment");
 const { query } = require("express");
 
 module.exports = function (db) {
